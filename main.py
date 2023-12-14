@@ -1,13 +1,7 @@
 from tkinter import *
 from tkinter import ttk
-from datetime import date
-
-# Variables
-WINDOW_WIDTH = 700
-WINDOW_HEIGHT = 500
 
 """
-
 Desenvolver uma interface gráfica para o controle de estoque.
 A interface deve ter campos para inserir nome do produto, quantidade em estoque,  preço unitário e um campo de seleção se o produto é gelado ou não. 
  Um botão para adicionar ao estoque e outro para limpar o formulário.
@@ -19,6 +13,33 @@ Os dados dos produtos devem ser armazenados em um arquivo chamado "estoque.txt",
 
 """
 # function
+def list_products():
+    with open("estoque.txt","r",encoding="utf-8") as file:
+        lines = file.read()
+        products = []
+        for line in lines.split('\n'):
+            if line:
+                products.append(line.split(','))
+        return products
+    
+
+def render_products():
+    win = Toplevel()
+    width = 600
+    height = 600
+    win.title("Cadastrado")
+    screen_width = win.winfo_screenwidth()
+    screen_height = win.winfo_screenheight()
+    x_cordinate = int((screen_width/2) - (width/2))
+    y_cordinate = int((screen_height/2) - (height/2))
+    win.geometry(f"{width}x{height}+{x_cordinate}+{y_cordinate}")
+
+    product_list = list_products()
+    for product in product_list:
+        label = ttk.Label(win, text=f"Nome do produto: {product[0]}, Quantidade:{product[1]}, Preço: {product[2]}, Está gelado: {product[3]}")
+        label.pack()
+
+
 def pop_up():
     win = Toplevel()
     width = 300
@@ -31,6 +52,7 @@ def pop_up():
     win.geometry(f"{width}x{height}+{x_cordinate}+{y_cordinate}")
     txt = ttk.Label(win, text="Registrado com sucesso")
     txt.pack()
+
 
 def save_db(name, quantity, price, cold):
     with open("estoque.txt","a",encoding="utf-8") as file:
@@ -52,6 +74,7 @@ def submit(name, quantity, price, cold, lbl):
     except:
         lbl.configure(text="Erro! Digite um valor válido.")
 
+
 def clear(name, quantity, price, lbl):
     name.delete(0, END)
     quantity.delete(0, END)
@@ -60,12 +83,13 @@ def clear(name, quantity, price, lbl):
 
 
 # Window Config
-
 root = Tk()
 root.title("Controle de Estoque")
 root.resizable(False, False)
 root.attributes('-topmost', 0)
 # Center window
+WINDOW_WIDTH = 700
+WINDOW_HEIGHT = 500
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x_cordinate = int((screen_width/2) - (WINDOW_WIDTH/2))
@@ -79,7 +103,6 @@ root.tk.call("set_theme", "light")
 is_cold = StringVar()
 is_cold.set('sim')
 
-
 #Labels
 product_name_label = ttk.Label(text="Nome do Produto")
 product_name = ttk.Entry()
@@ -87,15 +110,13 @@ quantity_storage_label = ttk.Label(text="Quantidade")
 quantity_storage = ttk.Entry()
 price_label = ttk.Label(text="Preço")
 price = ttk.Entry()
-cold_label = ttk.Label(text="ta frio?")
+cold_label = ttk.Label(text="Tá Frio?")
 radio_s = ttk.Radiobutton(text="Sim", variable=is_cold, value='sim')
 radio_n = ttk.Radiobutton(text="Nao", variable=is_cold, value='nao')
 lbl_error = ttk.Label(text="")
 btn_submit = ttk.Button(text="Cadastrar", command=lambda: submit(product_name,quantity_storage,price,is_cold, lbl_error))
 btn_clear = ttk.Button(text="Limpar", command=lambda: clear(product_name,quantity_storage,price, lbl_error))
-
-
-
+btn_list = ttk.Button(text="Listar", command=render_products)
 
 
 product_name_label.pack()
@@ -110,5 +131,8 @@ radio_n.pack()
 lbl_error.pack()
 btn_submit.pack()
 btn_clear.pack()
+btn_list.pack()
+
+
 if __name__ == "__main__":
     root.mainloop()
